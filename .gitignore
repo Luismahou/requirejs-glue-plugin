@@ -1,5 +1,4 @@
-dist
 temp
 components
 node_modules
-gluejs.sublime-*
+requirejs-glue-plugin.sublime-*

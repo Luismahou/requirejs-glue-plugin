@@ -88,6 +88,16 @@ module.exports = (grunt) ->
           )
         ]
 
+      dist:
+        files: [
+          (
+            expand: true
+            cwd   : 'temp/lib/scripts/'
+            src   : 'glue.js'
+            dest  : 'dist/'
+          )
+        ]
+
     # Watch
     # Only watching frequently changed files. When non-frequent changes
     # are made, tasks must be run manually.
@@ -112,6 +122,9 @@ module.exports = (grunt) ->
   grunt.registerTask 'lib', [
     'clean:lib', 'jshint', 'coffeelint',
     'copy:lib', 'coffee:lib', 'coffee:test', 'coffee:fixtures']
+
+  # Distribution task
+  grunt.registerTask 'dist', ['lib', 'copy:dist']
 
   # Loading plugins
   grunt.loadNpmTasks 'grunt-contrib'
