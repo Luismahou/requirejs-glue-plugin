@@ -1,0 +1,17 @@
+{
+  "name": "gluejs",
+  "author": {
+    "name": "Luismahou"
+  },
+  "version": "0.1.0",
+  "engines": {
+    "node": "0.8"
+  },
+  "devDependencies": {
+    "grunt": "~0.4",
+    "grunt-contrib": "~0.4",
+    "grunt-coffeelint": "0.0.6",
+    "grunt-mocha": "~0.3.2"
+  },
+  "keywords": ["requirejs"]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "gluejs",
+  "version": "0.1.0",
+  "main": "dist/glue.js",
+  "dependencies": {
+    "requirejs": "~2.1"
+  },
+  "devDependencies": {
+    "mocha": "~1",
+    "chai": "~1.6"
+  }
+}

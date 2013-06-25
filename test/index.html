@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" href="../components/mocha/mocha.css" type="text/css" media="screen" title="Tests for GlueJS" charset="utf-8">
+</head>
+<body>
+  <div id="mocha"></div>
+  <script src="../components/mocha/mocha.js" type="text/javascript" charset="utf-8"></script>
+  <script src="../components/chai/chai.js" type="text/javascript" charset="utf-8"></script>
+
+  <script src="../components/requirejs/require.js" type="text/javascript" charset="utf-8"></script>
+
+  <script type="text/javascript" charset="utf-8">
+    require.config({
+      baseUrl: "../temp/lib/scripts",
+      paths: {
+        // Aliasing path to find the specs
+        'specs': '../../specs',
+        // Aliasing path to find the fixtures
+        'fixtures': '../../fixtures'
+      }
+    });
+
+    // Registering testing style in globals for easy access
+    window.expect = chai.expect;
+
+    mocha.setup({
+      ui: 'bdd',
+      ignoreLeaks: true
+    });
+
+    // Protect from barfs
+    console = window.console || function() {};
+
+    // Don't track
+    window.notrack = true;
+
+    // Helper... not really needed but in case we want to do something fancy
+    var runMocha = function() {
+      mocha.run();
+    };
+
+    // Heads up! Using 'specs' as defined in above require.config()
+    require([
+      'specs/glue.spec',
+    ], function() { mocha.run() });
+  </script>
+</body>
+</html>
