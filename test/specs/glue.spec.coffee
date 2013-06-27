@@ -8,7 +8,7 @@ define ['glue!binder', 'glue!fixtures/Counter'], (binder, Counter) ->
       expect(new Counter()).to.not.equal(new Counter())
 
       # Making the Counter a singleton
-      binder.bind('fixtures/Counter').asSingleton()
+      binder.bind('fixtures/Counter').inSingleton()
 
       expect(new Counter()).to.equal(new Counter())
 
@@ -30,7 +30,7 @@ define ['glue!binder', 'glue!fixtures/Counter'], (binder, Counter) ->
     it 'should return given instance', ->
       expect(new Counter().sayHello()).to.equal 'hello'
 
-      binder.bind('fixtures/Counter').to({
+      binder.bind('fixtures/Counter').toInstance({
         sayHello: -> 'new hello'
       })
 
