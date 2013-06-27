@@ -37,7 +37,7 @@ define  ->
 
       {
         # binds the module name to the given instance
-        to: (instance) ->
+        toInstance: (instance) ->
           if not instance
             throw new Error "instance for #{name} cannot be null"
           checkIfConfigured(name)
@@ -50,7 +50,7 @@ define  ->
           true
         ,
         # binds the module name as a singleton
-        asSingleton: ->
+        inSingleton: ->
           checkIfConfigured(name)
           config[name] = {
             type: 's'
