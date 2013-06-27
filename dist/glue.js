@@ -30,7 +30,7 @@ define(function() {
     Binder.prototype.bind = function(name) {
       checkIfSealed();
       return {
-        to: function(instance) {
+        toInstance: function(instance) {
           if (!instance) {
             throw new Error("instance for " + name + " cannot be null");
           }
@@ -41,7 +41,7 @@ define(function() {
           };
           return true;
         },
-        asSingleton: function() {
+        inSingleton: function() {
           checkIfConfigured(name);
           config[name] = {
             type: 's'

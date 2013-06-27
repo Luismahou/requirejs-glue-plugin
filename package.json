@@ -7,6 +7,9 @@
   "engines": {
     "node": "0.8"
   },
+  "scripts": {
+    "test": "grunt dist"
+  },
   "devDependencies": {
     "grunt": "~0.4",
     "grunt-contrib": "~0.4",
