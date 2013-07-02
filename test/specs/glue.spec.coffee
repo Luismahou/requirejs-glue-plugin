@@ -1,4 +1,8 @@
-define ['glue!binder', 'glue!fixtures/Counter'], (binder, Counter) ->
+define (require) ->
+
+  binder  = require 'glue!binder'
+  Counter = require 'glue!fixtures/Counter'
+  Args    = require 'glue!fixtures/Args'
 
   describe 'singleton', ->
     afterEach ->
@@ -35,3 +39,19 @@ define ['glue!binder', 'glue!fixtures/Counter'], (binder, Counter) ->
       })
 
       expect(new Counter().sayHello()).to.equal 'new hello'
+
+  describe 'default', ->
+    afterEach ->
+      binder.clearBindings()
+
+    it 'should return a new instance each time', ->
+      expect(new Counter()).to.not.equal(new Counter())
+
+    it 'should create instance with arguments', ->
+      argsOne = new Args '1', '2'
+      argsTwo = new Args '3', '4'
+
+      expect(argsOne.argOne).to.equal '1'
+      expect(argsOne.argTwo).to.equal '2'
+      expect(argsTwo.argOne).to.equal '3'
+      expect(argsTwo.argTwo).to.equal '4'
