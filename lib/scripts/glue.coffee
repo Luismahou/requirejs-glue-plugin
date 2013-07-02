@@ -93,6 +93,13 @@ define  ->
               c.instance
             else
               # Default behaviour: create a new instance
-              new Module()
+              if arguments.length > 0
+                Constructor = (args) ->
+                  Module.apply @, args
+
+                Constructor.prototype = Module.prototype
+                new Constructor arguments
+              else
+                new Module()
         )
   }
