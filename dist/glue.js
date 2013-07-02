@@ -65,7 +65,7 @@ define(function() {
           registry[name] = Module;
           singleton = null;
           return onload(function() {
-            var c;
+            var Constructor, c;
             c = config[name];
             if (!c) {
               c = {};
@@ -78,7 +78,15 @@ define(function() {
             } else if (c.type === 'i') {
               return c.instance;
             } else {
-              return new Module();
+              if (arguments.length > 0) {
+                Constructor = function(args) {
+                  return Module.apply(this, args);
+                };
+                Constructor.prototype = Module.prototype;
+                return new Constructor(arguments);
+              } else {
+                return new Module();
+              }
             }
           });
         });
