@@ -61,9 +61,7 @@ define(function() {
         return onload(binder);
       } else {
         return req([name], function(Module) {
-          var singleton;
           registry[name] = Module;
-          singleton = null;
           return onload(function() {
             var Constructor, c;
             c = config[name];
@@ -71,10 +69,10 @@ define(function() {
               c = {};
             }
             if (c.type === 's') {
-              if (!singleton) {
-                singleton = new Module();
+              if (!c.singleton) {
+                c.singleton = new Module();
               }
-              return singleton;
+              return c.singleton;
             } else if (c.type === 'i') {
               return c.instance;
             } else {

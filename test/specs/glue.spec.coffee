@@ -55,3 +55,15 @@ define (require) ->
       expect(argsOne.argTwo).to.equal '2'
       expect(argsTwo.argOne).to.equal '3'
       expect(argsTwo.argTwo).to.equal '4'
+
+  describe 'clearBindings', ->
+    it 'clears singletons', ->
+      binder.bind('fixtures/Counter').inSingleton()
+
+      firstCounter = new Counter()
+
+      binder.clearBindings()
+
+      binder.bind('fixtures/Counter').inSingleton()
+
+      expect(firstCounter).to.not.equal(new Counter())

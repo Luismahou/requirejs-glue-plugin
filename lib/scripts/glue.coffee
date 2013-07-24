@@ -76,9 +76,6 @@ define  ->
           # Caching the real module
           registry[name] = Module
 
-          # In case is configured as singletong
-          singleton = null
-
           # Invoking the requirejs callback passing a function
           # that modifies at runtime the module instance according
           # to its bindings
@@ -86,9 +83,9 @@ define  ->
             c = config[name]
             c = {} if not c
             if c.type is 's' # Is a singleton
-              singleton = new Module() if not singleton
+              c.singleton = new Module() if not c.singleton
 
-              singleton
+              c.singleton
             else if c.type is 'i' # Is an instance
               c.instance
             else
