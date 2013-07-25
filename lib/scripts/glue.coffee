@@ -67,7 +67,7 @@ define  ->
     # requirejs load method. It loads the module according to its bindings.
     load: (name, req, onload) ->
       # 'binder' is reserved for our binder object.
-      if name is 'binder'
+      if name is '#binder'
         onload(binder)
       else
         # Loading the real module
