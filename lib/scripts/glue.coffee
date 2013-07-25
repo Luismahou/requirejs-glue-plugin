@@ -41,10 +41,9 @@ define  ->
           if not instance
             throw new Error "instance for #{name} cannot be null"
           checkIfConfigured(name)
-          config[name] = {
+          config[name] =
             type: 'i'
             instance: instance
-          }
 
           # Otherwise coffeescript would return the private config
           true
@@ -52,23 +51,53 @@ define  ->
         # binds the module name as a singleton
         inSingleton: ->
           checkIfConfigured(name)
-          config[name] = {
+          config[name] =
             type: 's'
-          }
 
           # Otherwise coffeescript would return the private config
           true
+        ,
+        # binds the module in the global scope
+        inGlobal: ->
+          checkIfConfigured name
+          config[name] =
+            type: 'g'
       }
 
+  class GlobalScope
+    constructor: ->
+      @globalInstances = {}
+      @started = false
+
+    start: ->
+      @started = true
+
+    stop: ->
+      @globalInstances = {}
+      @started = false
+
+    get: (name, Module) ->
+      if not @started
+        throw new Error 'Global scope is not started'
+      instance = @globalInstances[name]
+      if not instance?
+        instance = new Module()
+        @globalInstances[name] = instance
+
+      instance
+
   # One instance is enough for now...
-  binder = new Binder()
+  binder      = new Binder()
+  globalScope = new GlobalScope()
 
   {
     # requirejs load method. It loads the module according to its bindings.
     load: (name, req, onload) ->
       # 'binder' is reserved for our binder object.
       if name is '#binder'
-        onload(binder)
+        onload binder
+      else if name is '#globalScope'
+        onload globalScope
       else
         # Loading the real module
         req([name], (Module) ->
@@ -88,6 +117,8 @@ define  ->
               c.singleton
             else if c.type is 'i' # Is an instance
               c.instance
+            else if c.type is 'g' # Is in global context
+              globalScope.get name, Module
             else
               # Default behaviour: create a new instance
               if arguments.length > 0

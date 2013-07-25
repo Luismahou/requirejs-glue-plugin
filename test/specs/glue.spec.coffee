@@ -1,8 +1,9 @@
 define (require) ->
 
-  binder  = require 'glue!#binder'
-  Counter = require 'glue!fixtures/Counter'
-  Args    = require 'glue!fixtures/Args'
+  binder      = require 'glue!#binder'
+  globalScope = require 'glue!#globalScope'
+  Counter     = require 'glue!fixtures/Counter'
+  Args        = require 'glue!fixtures/Args'
 
   describe 'singleton', ->
     afterEach ->
@@ -39,6 +40,36 @@ define (require) ->
       })
 
       expect(new Counter().sayHello()).to.equal 'new hello'
+
+  describe 'global scope', ->
+    beforeEach ->
+      binder.bind('fixtures/Counter').inGlobal()
+
+    afterEach ->
+      binder.clearBindings()
+
+    it 'should throw error if not started', ->
+      expect(-> new Counter()).to.throw()
+
+    it 'should throw error if stopped', ->
+      globalScope.start()
+      globalScope.stop()
+      expect(-> new Counter()).to.throw()
+
+    it 'should return same instance while is same global scope', ->
+      globalScope.start()
+      expect(new Counter()).to.equal(new Counter())
+      globalScope.stop()
+
+    it 'should return different instance when in different global scope', ->
+      globalScope.start()
+      firstCounter = new Counter()
+      globalScope.stop()
+      # Starting scope again
+      globalScope.start()
+      # This Counter instance has been created in a different global scope
+      expect(new Counter()).to.not.equal(firstCounter)
+      globalScope.stop()
 
   describe 'default', ->
     afterEach ->
