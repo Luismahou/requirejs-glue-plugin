@@ -1,6 +1,6 @@
 
 define(function() {
-  var Binder, binder, checkIfConfigured, checkIfSealed, config, registry, sealed;
+  var Binder, GlobalScope, binder, checkIfConfigured, checkIfSealed, config, globalScope, registry, sealed;
   registry = [];
   config = [];
   sealed = false;
@@ -47,6 +47,12 @@ define(function() {
             type: 's'
           };
           return true;
+        },
+        inGlobal: function() {
+          checkIfConfigured(name);
+          return config[name] = {
+            type: 'g'
+          };
         }
       };
     };
@@ -54,11 +60,46 @@ define(function() {
     return Binder;
 
   })();
+  GlobalScope = (function() {
+
+    function GlobalScope() {
+      this.globalInstances = {};
+      this.started = false;
+    }
+
+    GlobalScope.prototype.start = function() {
+      return this.started = true;
+    };
+
+    GlobalScope.prototype.stop = function() {
+      this.globalInstances = {};
+      return this.started = false;
+    };
+
+    GlobalScope.prototype.get = function(name, Module) {
+      var instance;
+      if (!this.started) {
+        throw new Error('Global scope is not started');
+      }
+      instance = this.globalInstances[name];
+      if (!(instance != null)) {
+        instance = new Module();
+        this.globalInstances[name] = instance;
+      }
+      return instance;
+    };
+
+    return GlobalScope;
+
+  })();
   binder = new Binder();
+  globalScope = new GlobalScope();
   return {
     load: function(name, req, onload) {
       if (name === '#binder') {
         return onload(binder);
+      } else if (name === '#globalScope') {
+        return onload(globalScope);
       } else {
         return req([name], function(Module) {
           registry[name] = Module;
@@ -75,6 +116,8 @@ define(function() {
               return c.singleton;
             } else if (c.type === 'i') {
               return c.instance;
+            } else if (c.type === 'g') {
+              return globalScope.get(name, Module);
             } else {
               if (arguments.length > 0) {
                 Constructor = function(args) {
