@@ -57,7 +57,7 @@ define(function() {
   binder = new Binder();
   return {
     load: function(name, req, onload) {
-      if (name === 'binder') {
+      if (name === '#binder') {
         return onload(binder);
       } else {
         return req([name], function(Module) {
