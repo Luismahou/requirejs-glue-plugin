@@ -1,6 +1,6 @@
 define (require) ->
 
-  binder  = require 'glue!binder'
+  binder  = require 'glue!#binder'
   Counter = require 'glue!fixtures/Counter'
   Args    = require 'glue!fixtures/Args'
 
