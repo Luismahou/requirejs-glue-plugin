@@ -5,6 +5,10 @@ define (require) ->
   Counter     = require 'glue!fixtures/Counter'
   Args        = require 'glue!fixtures/Args'
 
+  # Annotated dependencies
+  RedCounter  = require 'glue!fixtures/Counter@red'
+  BlueCounter = require 'glue!fixtures/Counter@blue'
+
   describe 'singleton', ->
     afterEach ->
       binder.clearBindings()
@@ -70,6 +74,19 @@ define (require) ->
       # This Counter instance has been created in a different global scope
       expect(new Counter()).to.not.equal(firstCounter)
       globalScope.stop()
+
+  describe 'annotations', ->
+    afterEach ->
+      binder.clearBindings()
+
+    it 'should return different instances for "blue" and "red', ->
+      expect(new RedCounter()).to.not.equal(new BlueCounter())
+
+    it 'should return same instance for "red"', ->
+      expect(new RedCounter()).to.equal(new RedCounter())
+
+    it 'should return same instance for "blue"', ->
+      expect(new BlueCounter()).to.equal(new BlueCounter())
 
   describe 'default', ->
     afterEach ->

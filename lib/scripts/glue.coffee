@@ -89,6 +89,7 @@ define  ->
   # One instance is enough for now...
   binder      = new Binder()
   globalScope = new GlobalScope()
+  annotated   = {}
 
   {
     # requirejs load method. It loads the module according to its bindings.
@@ -99,6 +100,10 @@ define  ->
       else if name is '#globalScope'
         onload globalScope
       else
+        # Checking if module is annotated
+        # atIndex = name.indexOf '@'
+        [name, annotation] = name.split '@'
+
         # Loading the real module
         req([name], (Module) ->
 
@@ -119,6 +124,10 @@ define  ->
               c.instance
             else if c.type is 'g' # Is in global context
               globalScope.get name, Module
+            else if annotation?
+              if not annotated[annotation]?
+                annotated[annotation] = new Module()
+              annotated[annotation]
             else
               # Default behaviour: create a new instance
               if arguments.length > 0
