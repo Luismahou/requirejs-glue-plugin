@@ -1,8 +1,9 @@
 
 define(function() {
-  var Binder, GlobalScope, binder, checkIfConfigured, checkIfSealed, config, globalScope, registry, sealed;
+  var Binder, GlobalScope, annotated, annotationsConfig, binder, checkIfConfigured, checkIfConfiguredAnnotation, checkIfSealed, config, globalScope, registry, sealed;
   registry = [];
   config = [];
+  annotationsConfig = [];
   sealed = false;
   checkIfSealed = function() {
     if (sealed) {
@@ -14,13 +15,20 @@ define(function() {
       throw new Error("" + name + " is already configured");
     }
   };
+  checkIfConfiguredAnnotation = function(name, annotation) {
+    var _ref;
+    if (((_ref = annotationsConfig[annotation]) != null ? _ref[name] : void 0) === name) {
+      throw new Error("" + name + " is already annotated with " + annotation);
+    }
+  };
   Binder = (function() {
 
     function Binder() {}
 
     Binder.prototype.clearBindings = function() {
       checkIfSealed();
-      return config = [];
+      config = [];
+      return annotationsConfig = [];
     };
 
     Binder.prototype.seal = function() {
@@ -50,8 +58,23 @@ define(function() {
         },
         inGlobal: function() {
           checkIfConfigured(name);
-          return config[name] = {
+          config[name] = {
             type: 'g'
+          };
+          return true;
+        },
+        annotatedWith: function(annotation) {
+          checkIfConfiguredAnnotation(name, annotation);
+          annotationsConfig[annotation] = {};
+          annotationsConfig[annotation][name] = {};
+          return {
+            toInstance: function(instance) {
+              if (!instance) {
+                throw new Error("instance for " + name + " cannot be null");
+              }
+              annotationsConfig[annotation][name].type = 'i';
+              return annotationsConfig[annotation][name].instance = instance;
+            }
           };
         }
       };
@@ -94,17 +117,20 @@ define(function() {
   })();
   binder = new Binder();
   globalScope = new GlobalScope();
+  annotated = {};
   return {
     load: function(name, req, onload) {
+      var annotation, _ref;
       if (name === '#binder') {
         return onload(binder);
       } else if (name === '#globalScope') {
         return onload(globalScope);
       } else {
+        _ref = name.split('@'), name = _ref[0], annotation = _ref[1];
         return req([name], function(Module) {
           registry[name] = Module;
           return onload(function() {
-            var Constructor, c;
+            var Constructor, c, _ref1;
             c = config[name];
             if (!c) {
               c = {};
@@ -118,6 +144,15 @@ define(function() {
               return c.instance;
             } else if (c.type === 'g') {
               return globalScope.get(name, Module);
+            } else if (annotation != null) {
+              if (((_ref1 = annotationsConfig[annotation]) != null ? _ref1[name] : void 0) != null) {
+                return annotationsConfig[annotation][name].instance;
+              } else {
+                if (!(annotated[annotation] != null)) {
+                  annotated[annotation] = new Module();
+                }
+                return annotated[annotation];
+              }
             } else {
               if (arguments.length > 0) {
                 Constructor = function(args) {
