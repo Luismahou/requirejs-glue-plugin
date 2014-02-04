@@ -9,11 +9,13 @@
 define  ->
 
   # Caches the modules by their paths
-  registry = []
-  # Contains the bindings for the modules
-  config   = []
+  registry          = []
+  # Contains bindings for modules
+  config            = []
+  # Contains bindings for annotated modules
+  annotationsConfig = []
   # Indicates whether the bindings can be modified or not
-  sealed   = false
+  sealed            = false
 
   checkIfSealed = ->
     if sealed
@@ -22,11 +24,16 @@ define  ->
     if config[name]
       throw new Error "#{name} is already configured"
 
+  checkIfConfiguredAnnotation = (name, annotation) ->
+    if annotationsConfig[annotation]?[name] is name
+      throw new Error "#{name} is already annotated with #{annotation}"
+
   # Configures bindings for your modules
   class Binder
     clearBindings: ->
       checkIfSealed()
       config = []
+      annotationsConfig = []
 
     seal: ->
       sealed = true
@@ -62,6 +69,23 @@ define  ->
           checkIfConfigured name
           config[name] =
             type: 'g'
+
+          # Otherwise coffeescript would return the private config
+          true
+        ,
+        # binds the module with an specific annotation
+        annotatedWith: (annotation) ->
+          checkIfConfiguredAnnotation name, annotation
+          annotationsConfig[annotation] = {}
+          annotationsConfig[annotation][name] = {}
+
+          {
+            toInstance: (instance) ->
+              if not instance
+                throw new Error "instance for #{name} cannot be null"
+              annotationsConfig[annotation][name].type = 'i'
+              annotationsConfig[annotation][name].instance = instance
+          }
       }
 
   class GlobalScope
@@ -89,6 +113,7 @@ define  ->
   # One instance is enough for now...
   binder      = new Binder()
   globalScope = new GlobalScope()
+  annotated   = {}
 
   {
     # requirejs load method. It loads the module according to its bindings.
@@ -99,6 +124,10 @@ define  ->
       else if name is '#globalScope'
         onload globalScope
       else
+        # Checking if module is annotated
+        # atIndex = name.indexOf '@'
+        [name, annotation] = name.split '@'
+
         # Loading the real module
         req([name], (Module) ->
 
@@ -119,6 +148,17 @@ define  ->
               c.instance
             else if c.type is 'g' # Is in global context
               globalScope.get name, Module
+            else if annotation?
+              # Checking if we have configuration for this annotation
+              if annotationsConfig[annotation]?[name]?
+                # Only instance binding are supported
+                annotationsConfig[annotation][name].instance
+
+              # Then, default behaviour: Creating a new instance per annotation
+              else
+                if not annotated[annotation]?
+                  annotated[annotation] = new Module()
+                annotated[annotation]
             else
               # Default behaviour: create a new instance
               if arguments.length > 0
