@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/Luismahou/requirejs-glue-plugin.png)](https://travis-ci.org/Luismahou/requirejs-glue-plugin)
+[![Dependency Status](https://david-dm.org/luismahou/requirejs-glue-plugin.png)](https://david-dm.org/luismahou/requirejs-glue-plugin)
+[![devDependency Status](https://david-dm.org/luismahou/requirejs-glue-plugin/dev-status.png)](https://david-dm.org/luismahou/requirejs-glue-plugin#info=devDependencies)
+
 ### Introduction
 
 As a Java guy, one of the things that I missed more from my switch to Javascript, was [Google Guice](code.google.com/p/google-guice/).
