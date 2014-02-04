@@ -88,6 +88,22 @@ define (require) ->
     it 'should return same instance for "blue"', ->
       expect(new BlueCounter()).to.equal(new BlueCounter())
 
+    describe 'binded to instances', ->
+      beforeEach ->
+        @red  = new Counter()
+        @blue = new Counter()
+        binder.bind('fixtures/Counter').annotatedWith('red').toInstance @red
+        binder.bind('fixtures/Counter').annotatedWith('blue').toInstance @blue
+
+      it 'should return different instances for "blue" and "red', ->
+        expect(new RedCounter()).to.not.equal(new BlueCounter())
+
+      it 'should return same instance for "red"', ->
+        expect(new RedCounter()).to.equal(new RedCounter())
+
+      it 'should return same instance for "blue"', ->
+        expect(new BlueCounter()).to.equal(new BlueCounter())
+
   describe 'default', ->
     afterEach ->
       binder.clearBindings()
