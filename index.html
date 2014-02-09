@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Requirejs-glue-plugin by Luismahou</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>Requirejs-glue-plugin</h1>
+        <p>An attempt to bring Dependency Injection to javascript via RequireJS</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/Luismahou/requirejs-glue-plugin" class="button fork"><strong>View On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/Luismahou/requirejs-glue-plugin/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/Luismahou/requirejs-glue-plugin/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
+        <p><a href="https://travis-ci.org/Luismahou/requirejs-glue-plugin"><img src="https://travis-ci.org/Luismahou/requirejs-glue-plugin.png" alt="Build Status"></a>
+<a href="https://david-dm.org/luismahou/requirejs-glue-plugin"><img src="https://david-dm.org/luismahou/requirejs-glue-plugin.png" alt="Dependency Status"></a>
+<a href="https://david-dm.org/luismahou/requirejs-glue-plugin#info=devDependencies"><img src="https://david-dm.org/luismahou/requirejs-glue-plugin/dev-status.png" alt="devDependency Status"></a></p>
+
+<h3>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h3>
+
+<p>As a Java guy, one of the things that I missed more from my switch to Javascript, was <a href="code.google.com/p/google-guice/">Google Guice</a>.</p>
+
+<p><strong>GlueJs</strong> is an attempt to fill that gap in combination with <a href="requirejs.org">RequireJS</a>.</p>
+
+<p><strong>GlueJs</strong> is implemented as a RequireJS plugin.</p>
+
+<h3>
+<a name="learn-by-example" class="anchor" href="#learn-by-example"><span class="octicon octicon-link"></span></a>Learn by example</h3>
+
+<p>RequireJS configuration:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">requirejs</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+    <span class="nx">paths</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">glue</span><span class="o">:</span> <span class="s1">'/path/to/require/glue/plugin'</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p><strong>GlueJs</strong> populates the <code>binder</code>. The binder allows you to bind RequireJS paths.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="c1">// Gets the binder. Note that the module name starts with '#'. The hash is used to distinguish between normal modules and GlueJS ones</span>
+<span class="kd">var</span> <span class="nx">binder</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'glue!#binder'</span><span class="p">);</span>
+</pre></div>
+
+<p>You can bind <code>Foo</code> into the singleton scope. </p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">binder</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'Foo'</span><span class="p">).</span><span class="nx">inSingleton</span><span class="p">();</span>
+
+<span class="c1">// Every time that require('glue!Foo') is executed, it will return the same instance</span>
+</pre></div>
+
+<p>Or to an instance:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="nx">createFoo</span><span class="p">();</span>
+<span class="nx">binder</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'Foo'</span><span class="p">).</span><span class="nx">toInstance</span><span class="p">(</span><span class="nx">foo</span><span class="p">);</span>
+
+<span class="c1">// require('glue!Foo') will return "foo"</span>
+</pre></div>
+
+<p>You can also annotate modules:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">binder</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'Foo'</span><span class="p">).</span><span class="nx">annotatedWith</span><span class="p">(</span><span class="s1">'red'</span><span class="p">).</span><span class="nx">toInstance</span><span class="p">(</span><span class="nx">redFoo</span><span class="p">);</span>
+<span class="nx">binder</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'Foo'</span><span class="p">).</span><span class="nx">annotatedWith</span><span class="p">(</span><span class="s1">'blue'</span><span class="p">).</span><span class="nx">toInstance</span><span class="p">(</span><span class="nx">blueFoo</span><span class="p">);</span>
+
+<span class="c1">// require('glue!Foo@red') will return "redFoo" while require('glue!Foo@blue') will return "blueFoo"</span>
+</pre></div>
+
+<h3>
+<a name="constraints" class="anchor" href="#constraints"><span class="octicon octicon-link"></span></a>Constraints</h3>
+
+<p>Modules loaded via <strong>GlueJS</strong> must ALWAYS return a class. The <em>magic</em> happens when you try to create an instance of the module:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">require</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">Foo</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'glue!Foo'</span><span class="p">);</span>
+
+    <span class="kd">var</span> <span class="nx">Bar</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// When "new" is executed GlueJS determines how to instantiate "Foo"</span>
+        <span class="kd">var</span> <span class="nx">foo</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">();</span>
+    <span class="p">};</span>
+
+    <span class="k">return</span> <span class="nx">Bar</span><span class="p">;</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>
+<a name="is-dependency-injection-really-necessary-in-a-language-like-javascript" class="anchor" href="#is-dependency-injection-really-necessary-in-a-language-like-javascript"><span class="octicon octicon-link"></span></a>Is Dependency Injection really necessary in a language like Javascript?</h3>
+
+<p>IMHO is not as important as in Java. You can definitely write a successful app without it. Besides, RequireJS brings some similar features, for example, you can convert <code>Foo</code> into a singleton by simply:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">require</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">Foo</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// ...</span>
+    <span class="p">};</span>
+    <span class="kd">var</span> <span class="nx">singleton</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Foo</span><span class="p">()</span>
+    <span class="c1">// require('Foo') will always return a reference to 'singleton'</span>
+    <span class="k">return</span> <span class="nx">singleton</span><span class="p">;</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>The problem arises when you try to test your code. If <code>Foo</code> stores state, you'll need to clean it after every test to ensure that you're not leaking that state from one test to another. For example:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="c1">// Counter definition</span>
+<span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">require</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">Counter</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">counter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="nx">Counter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">increment</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="nx">Counter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">decrement</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="o">--</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="nx">Counter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">getCounter</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="c1">// Returning a singleton</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">Counter</span><span class="p">();</span>
+<span class="p">});</span>
+
+<span class="c1">// In a test file</span>
+<span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">require</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">counter</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'counter'</span><span class="p">);</span>
+
+    <span class="nx">describe</span><span class="p">(</span><span class="s1">'Counter'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">it</span><span class="p">(</span><span class="s1">'should increment counter by one'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">counter</span><span class="p">.</span><span class="nx">increment</span><span class="p">();</span>
+            <span class="nx">expect</span><span class="p">(</span><span class="nx">counter</span><span class="p">.</span><span class="nx">getCounter</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="nx">it</span><span class="p">(</span><span class="s1">'should decrement counter by one'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">counter</span><span class="p">.</span><span class="nx">decrement</span><span class="p">();</span>
+            <span class="c1">// It will fail, because the counter was modified in the previous test.</span>
+            <span class="nx">expect</span><span class="p">(</span><span class="nx">counter</span><span class="p">.</span><span class="nx">getCounter</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>With <strong>GlueJS</strong> the test would look like:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="c1">// Counter definition</span>
+<span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">require</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">Counter</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">counter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="nx">Counter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">increment</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="nx">Counter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">decrement</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="o">--</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="nx">Counter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">getCounter</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="c1">// Returning the class</span>
+    <span class="k">return</span> <span class="nx">Counter</span><span class="p">();</span>
+<span class="p">});</span>
+
+<span class="c1">// In a test file</span>
+<span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">require</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">binder</span>  <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'glue!#binder'</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">Counter</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'glue!Counter'</span><span class="p">);</span>
+
+    <span class="nx">describe</span><span class="p">(</span><span class="s1">'Counter'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">beforeEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">binder</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'Counter'</span><span class="p">).</span><span class="nx">inSingleton</span><span class="p">();</span>
+
+            <span class="k">this</span><span class="p">.</span><span class="nx">counter</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Counter</span><span class="p">();</span>
+        <span class="p">});</span>
+        <span class="nx">afterEach</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="c1">// Utility method that removes all the references to objects</span>
+            <span class="c1">// instantiated by GlueJS</span>
+            <span class="nx">binder</span><span class="p">.</span><span class="nx">clearBindings</span><span class="p">();</span>
+        <span class="p">});</span>
+        <span class="nx">it</span><span class="p">(</span><span class="s1">'should increment counter by one'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">increment</span><span class="p">();</span>
+            <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">getCounter</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">});</span>
+        <span class="nx">it</span><span class="p">(</span><span class="s1">'should decrement counter by one'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">decrement</span><span class="p">();</span>
+            <span class="c1">// Now, this test will pass, because the singleton instance is re-instantiated from test to test.</span>
+            <span class="nx">expect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">getCounter</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">});</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+      </section>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/Luismahou">Luismahou</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
