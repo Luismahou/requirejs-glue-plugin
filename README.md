@@ -4,7 +4,7 @@
 
 ### Introduction
 
-As a Java guy, one of the things that I missed more from my switch to Javascript, was [Google Guice](code.google.com/p/google-guice/).
+As a Java guy, one of the things that I missed more when I switch to Javascript was [Google Guice](code.google.com/p/google-guice/).
 
 **GlueJs** is an attempt to fill that gap in combination with [RequireJS](requirejs.org).
 
