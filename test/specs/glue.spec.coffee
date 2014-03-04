@@ -1,5 +1,7 @@
 define (require) ->
 
+  CounterClass = require 'fixtures/Counter'
+
   binder      = require 'glue!#binder'
   globalScope = require 'glue!#globalScope'
   Counter     = require 'glue!fixtures/Counter'
@@ -31,6 +33,40 @@ define (require) ->
         helloWorld: -> 'hello from wrapper'
 
       expect(new Wrapper().helloWorld()).to.equal 'hello from real'
+
+  describe 'class', ->
+
+    beforeEach ->
+      class CustomCounter
+        constructor: (args...) ->
+          @args = args
+          @counter = 0
+        incCounter: ->
+          @counter++
+
+      binder.bind('fixtures/Counter').to(CustomCounter)
+
+    afterEach ->
+      binder.clearBindings()
+
+    it 'should return a new instance of the class', ->
+      a = new Counter()
+      b = new Counter()
+      # They are different instances
+      expect(a).to.not.equal(b)
+
+      # If the counter instance has been created properly, it will
+      # contain CustomCounter methods and fields
+      a.incCounter()
+      b.incCounter()
+      expect(a.counter).to.equal(b.counter)
+
+    it 'should allow parameters', ->
+      a = new Counter('a')
+      b = new Counter('b', 'c')
+
+      expect(a.args).to.deep.equal ['a']
+      expect(b.args).to.deep.equal ['b', 'c']
 
   describe 'instance', ->
     afterEach ->
@@ -103,6 +139,44 @@ define (require) ->
 
       it 'should return same instance for "blue"', ->
         expect(new BlueCounter()).to.equal(new BlueCounter())
+
+    describe 'binded to classes', ->
+      beforeEach ->
+        class Red extends CounterClass
+          constructor: (args...) ->
+            super()
+            @args = args
+          whoAmI: ->
+            'red'
+        class Blue extends CounterClass
+          constructor: (args...) ->
+            super()
+            @args = args
+          whoAmI: ->
+            'blue'
+
+        binder.bind('fixtures/Counter').annotatedWith('red').to Red
+        binder.bind('fixtures/Counter').annotatedWith('blue').to Blue
+
+      it 'should return different instances for "blue" and "red"', ->
+        expect(new RedCounter()).to.not.equal(new BlueCounter())
+        # Since the annotation is binded to a class every time
+        # we call "new" a new instance is created
+        expect(new RedCounter()).to.not.equal(new RedCounter())
+        expect(new BlueCounter()).to.not.equal(new BlueCounter())
+
+      it 'should return an instance of Red', ->
+        expect(new RedCounter().whoAmI()).to.equal 'red'
+
+      it 'should return an instance of Blue', ->
+        expect(new BlueCounter().whoAmI()).to.equal 'blue'
+
+      it 'should allow parameters', ->
+        red  = new RedCounter('a')
+        blue = new BlueCounter('b', 'c')
+
+        expect(red.args).to.deep.equal ['a']
+        expect(blue.args).to.deep.equal ['b', 'c']
 
   describe 'default', ->
     afterEach ->

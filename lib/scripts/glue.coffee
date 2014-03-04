@@ -8,8 +8,6 @@
 #   You can't. GlueJS allows us you change at runtime a real module for a mock.
 define  ->
 
-  # Caches the modules by their paths
-  registry          = []
   # Contains bindings for modules
   config            = []
   # Contains bindings for annotated modules
@@ -28,6 +26,17 @@ define  ->
     if annotationsConfig[annotation]?[name] is name
       throw new Error "#{name} is already annotated with #{annotation}"
 
+  createInstance = (Clazz, args) ->
+    # Default behaviour: create a new instance
+    if args.length > 0
+      Constructor = (args) ->
+        Clazz.apply @, args
+
+      Constructor.prototype = Clazz.prototype
+      new Constructor args
+    else
+      new Clazz()
+
   # Configures bindings for your modules
   class Binder
     clearBindings: ->
@@ -43,13 +52,22 @@ define  ->
       checkIfSealed()
 
       {
+        # binds the module name to a factory function
+        to: (clazz) ->
+          checkIfConfigured(name)
+          config[name] =
+            type : 'c'
+            clazz: clazz
+
+          # Otherwise coffeescript would return the private config
+          true
         # binds the module name to the given instance
         toInstance: (instance) ->
           if not instance
             throw new Error "instance for #{name} cannot be null"
           checkIfConfigured(name)
           config[name] =
-            type: 'i'
+            type    : 'i'
             instance: instance
 
           # Otherwise coffeescript would return the private config
@@ -80,6 +98,11 @@ define  ->
           annotationsConfig[annotation][name] = {}
 
           {
+            to: (clazz) ->
+              if not clazz
+                throw new Error "clazz for #{{name}} cannot be null"
+              annotationsConfig[annotation][name].type = 'c'
+              annotationsConfig[annotation][name].clazz = clazz
             toInstance: (instance) ->
               if not instance
                 throw new Error "instance for #{name} cannot be null"
@@ -131,9 +154,6 @@ define  ->
         # Loading the real module
         req([name], (Module) ->
 
-          # Caching the real module
-          registry[name] = Module
-
           # Invoking the requirejs callback passing a function
           # that modifies at runtime the module instance according
           # to its bindings
@@ -144,6 +164,8 @@ define  ->
               c.singleton = new Module() if not c.singleton
 
               c.singleton
+            else if c.type is 'c' # Is a factory method
+              createInstance(c.clazz, arguments)
             else if c.type is 'i' # Is an instance
               c.instance
             else if c.type is 'g' # Is in global context
@@ -151,8 +173,11 @@ define  ->
             else if annotation?
               # Checking if we have configuration for this annotation
               if annotationsConfig[annotation]?[name]?
-                # Only instance binding are supported
-                annotationsConfig[annotation][name].instance
+                ac = annotationsConfig[annotation][name]
+                if ac.type is 'i'
+                  annotationsConfig[annotation][name].instance
+                else if ac.type is 'c'
+                  createInstance(ac.clazz, arguments)
 
               # Then, default behaviour: Creating a new instance per annotation
               else
@@ -160,14 +185,6 @@ define  ->
                   annotated[annotation] = new Module()
                 annotated[annotation]
             else
-              # Default behaviour: create a new instance
-              if arguments.length > 0
-                Constructor = (args) ->
-                  Module.apply @, args
-
-                Constructor.prototype = Module.prototype
-                new Constructor arguments
-              else
-                new Module()
+              createInstance(Module, arguments)
         )
   }
