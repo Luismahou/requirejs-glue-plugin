@@ -1,7 +1,5 @@
-
 define(function() {
-  var Binder, GlobalScope, annotated, annotationsConfig, binder, checkIfConfigured, checkIfConfiguredAnnotation, checkIfSealed, config, globalScope, registry, sealed;
-  registry = [];
+  var Binder, GlobalScope, annotated, annotationsConfig, binder, checkIfConfigured, checkIfConfiguredAnnotation, checkIfSealed, config, createInstance, globalScope, sealed;
   config = [];
   annotationsConfig = [];
   sealed = false;
@@ -21,8 +19,19 @@ define(function() {
       throw new Error("" + name + " is already annotated with " + annotation);
     }
   };
+  createInstance = function(Clazz, args) {
+    var Constructor;
+    if (args.length > 0) {
+      Constructor = function(args) {
+        return Clazz.apply(this, args);
+      };
+      Constructor.prototype = Clazz.prototype;
+      return new Constructor(args);
+    } else {
+      return new Clazz();
+    }
+  };
   Binder = (function() {
-
     function Binder() {}
 
     Binder.prototype.clearBindings = function() {
@@ -38,6 +47,14 @@ define(function() {
     Binder.prototype.bind = function(name) {
       checkIfSealed();
       return {
+        to: function(clazz) {
+          checkIfConfigured(name);
+          config[name] = {
+            type: 'c',
+            clazz: clazz
+          };
+          return true;
+        },
         toInstance: function(instance) {
           if (!instance) {
             throw new Error("instance for " + name + " cannot be null");
@@ -68,6 +85,15 @@ define(function() {
           annotationsConfig[annotation] = {};
           annotationsConfig[annotation][name] = {};
           return {
+            to: function(clazz) {
+              if (!clazz) {
+                throw new Error("clazz for " + {
+                  name: name
+                } + " cannot be null");
+              }
+              annotationsConfig[annotation][name].type = 'c';
+              return annotationsConfig[annotation][name].clazz = clazz;
+            },
             toInstance: function(instance) {
               if (!instance) {
                 throw new Error("instance for " + name + " cannot be null");
@@ -84,7 +110,6 @@ define(function() {
 
   })();
   GlobalScope = (function() {
-
     function GlobalScope() {
       this.globalInstances = {};
       this.started = false;
@@ -105,7 +130,7 @@ define(function() {
         throw new Error('Global scope is not started');
       }
       instance = this.globalInstances[name];
-      if (!(instance != null)) {
+      if (instance == null) {
         instance = new Module();
         this.globalInstances[name] = instance;
       }
@@ -128,9 +153,8 @@ define(function() {
       } else {
         _ref = name.split('@'), name = _ref[0], annotation = _ref[1];
         return req([name], function(Module) {
-          registry[name] = Module;
           return onload(function() {
-            var Constructor, c, _ref1;
+            var ac, c, _ref1;
             c = config[name];
             if (!c) {
               c = {};
@@ -140,29 +164,28 @@ define(function() {
                 c.singleton = new Module();
               }
               return c.singleton;
+            } else if (c.type === 'c') {
+              return createInstance(c.clazz, arguments);
             } else if (c.type === 'i') {
               return c.instance;
             } else if (c.type === 'g') {
               return globalScope.get(name, Module);
             } else if (annotation != null) {
               if (((_ref1 = annotationsConfig[annotation]) != null ? _ref1[name] : void 0) != null) {
-                return annotationsConfig[annotation][name].instance;
+                ac = annotationsConfig[annotation][name];
+                if (ac.type === 'i') {
+                  return annotationsConfig[annotation][name].instance;
+                } else if (ac.type === 'c') {
+                  return createInstance(ac.clazz, arguments);
+                }
               } else {
-                if (!(annotated[annotation] != null)) {
+                if (annotated[annotation] == null) {
                   annotated[annotation] = new Module();
                 }
                 return annotated[annotation];
               }
             } else {
-              if (arguments.length > 0) {
-                Constructor = function(args) {
-                  return Module.apply(this, args);
-                };
-                Constructor.prototype = Module.prototype;
-                return new Constructor(arguments);
-              } else {
-                return new Module();
-              }
+              return createInstance(Module, arguments);
             }
           });
         });
