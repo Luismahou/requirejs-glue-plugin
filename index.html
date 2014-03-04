@@ -46,7 +46,7 @@
 <h3>
 <a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h3>
 
-<p>As a Java guy, one of the things that I missed more from my switch to Javascript, was <a href="code.google.com/p/google-guice/">Google Guice</a>.</p>
+<p>As a Java guy, one of the things that I missed more when I switch to Javascript was <a href="code.google.com/p/google-guice/">Google Guice</a>.</p>
 
 <p><strong>GlueJs</strong> is an attempt to fill that gap in combination with <a href="requirejs.org">RequireJS</a>.</p>
 
@@ -85,12 +85,23 @@
 <span class="c1">// require('glue!Foo') will return "foo"</span>
 </pre></div>
 
+<p>Or to a factory method:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">binder</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'Foo'</span><span class="p">).</span><span class="nx">to</span><span class="p">(</span><span class="nx">BarClass</span><span class="p">);</span>
+
+<span class="c1">// new require('glue!Foo') will create an instance of BarClass</span>
+</pre></div>
+
 <p>You can also annotate modules:</p>
 
 <div class="highlight highlight-javascript"><pre><span class="nx">binder</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'Foo'</span><span class="p">).</span><span class="nx">annotatedWith</span><span class="p">(</span><span class="s1">'red'</span><span class="p">).</span><span class="nx">toInstance</span><span class="p">(</span><span class="nx">redFoo</span><span class="p">);</span>
 <span class="nx">binder</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'Foo'</span><span class="p">).</span><span class="nx">annotatedWith</span><span class="p">(</span><span class="s1">'blue'</span><span class="p">).</span><span class="nx">toInstance</span><span class="p">(</span><span class="nx">blueFoo</span><span class="p">);</span>
 
 <span class="c1">// require('glue!Foo@red') will return "redFoo" while require('glue!Foo@blue') will return "blueFoo"</span>
+
+<span class="nx">binder</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'Foo'</span><span class="p">).</span><span class="nx">annotatedWith</span><span class="p">(</span><span class="s1">'bar'</span><span class="p">).</span><span class="nx">to</span><span class="p">(</span><span class="nx">BarClass</span><span class="p">);</span>
+
+<span class="c1">// new require(glue!Foo@bar) will create an instance of BarClass</span>
 </pre></div>
 
 <h3>
