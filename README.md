@@ -43,12 +43,23 @@ binder.bind('Foo').toInstance(foo);
 // require('glue!Foo') will return "foo"
 ```
 
+Or to a factory method:
+```javascript
+binder.bind('Foo').to(BarClass);
+
+// new require('glue!Foo') will create an instance of BarClass
+```
+
 You can also annotate modules:
 ```javascript
 binder.bind('Foo').annotatedWith('red').toInstance(redFoo);
 binder.bind('Foo').annotatedWith('blue').toInstance(blueFoo);
 
 // require('glue!Foo@red') will return "redFoo" while require('glue!Foo@blue') will return "blueFoo"
+
+binder.bind('Foo').annotatedWith('bar').to(BarClass);
+
+// new require(glue!Foo@bar) will create an instance of BarClass
 ```
 
 ### Constraints
