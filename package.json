@@ -3,7 +3,7 @@
   "author": {
     "name": "Luismahou"
   },
-  "version": "0.4.1",
+  "version": "0.5.0",
   "engines": {
     "node": "0.10"
   },
@@ -16,5 +16,7 @@
     "grunt-coffeelint": "0.0.8",
     "grunt-mocha": "~0.4.10"
   },
-  "keywords": ["requirejs"]
+  "keywords": [
+    "requirejs"
+  ]
 }
