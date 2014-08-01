@@ -182,7 +182,7 @@ define (require) ->
         expect(red.args).to.deep.equal ['a']
         expect(blue.args).to.deep.equal ['b', 'c']
 
-  describe.only 'providers', ->
+  describe 'providers', ->
     afterEach ->
       binder.clearBindings()
 
