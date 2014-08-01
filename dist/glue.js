@@ -1,5 +1,5 @@
 define(function() {
-  var Binder, GlobalScope, annotated, annotationsConfig, binder, checkIfConfigured, checkIfConfiguredAnnotation, checkIfSealed, config, createInstance, globalScope, sealed;
+  var Binder, GlobalScope, annotated, annotationsConfig, binder, checkIfConfigured, checkIfConfiguredAnnotation, checkIfSealed, config, createInstance, globalScope, providerProxy, sealed;
   config = [];
   annotationsConfig = [];
   sealed = false;
@@ -29,6 +29,24 @@ define(function() {
       return new Constructor(args);
     } else {
       return new Clazz();
+    }
+  };
+  providerProxy = function(provider) {
+    var p;
+    if (provider.get && typeof provider.get === 'function') {
+      return function() {
+        return provider.get();
+      };
+    } else if (typeof provider === 'function') {
+      p = null;
+      return function() {
+        if (!p) {
+          p = new provider();
+        }
+        return p.get();
+      };
+    } else {
+      throw new Error('Provider must be either a class or an instance and provider "get" method');
     }
   };
   Binder = (function() {
@@ -65,6 +83,17 @@ define(function() {
             instance: instance
           };
           return true;
+        },
+        toProvider: function(provider) {
+          if (!provider) {
+            throw new Error("provider for " + name + " cannot be null");
+          }
+          checkIfConfigured(name);
+          return config[name] = {
+            type: 'p',
+            provider: provider,
+            providerProxy: providerProxy(provider)
+          };
         },
         inSingleton: function() {
           checkIfConfigured(name);
@@ -170,6 +199,8 @@ define(function() {
               return c.instance;
             } else if (c.type === 'g') {
               return globalScope.get(name, Module);
+            } else if (c.type === 'p') {
+              return c.providerProxy();
             } else if (annotation != null) {
               if (((_ref1 = annotationsConfig[annotation]) != null ? _ref1[name] : void 0) != null) {
                 ac = annotationsConfig[annotation][name];
