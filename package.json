@@ -14,7 +14,8 @@
     "grunt": "~0.4",
     "grunt-contrib": "~0.9.0",
     "grunt-coffeelint": "0.0.8",
-    "grunt-mocha": "~0.4.10"
+    "grunt-mocha": "~0.4.10",
+    "grunt-bump": "0.0.15"
   },
   "keywords": [
     "requirejs"

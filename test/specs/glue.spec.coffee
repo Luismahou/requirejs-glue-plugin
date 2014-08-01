@@ -2,10 +2,14 @@ define (require) ->
 
   CounterClass = require 'fixtures/Counter'
 
-  binder      = require 'glue!#binder'
-  globalScope = require 'glue!#globalScope'
-  Counter     = require 'glue!fixtures/Counter'
-  Args        = require 'glue!fixtures/Args'
+  binder          = require 'glue!#binder'
+  globalScope     = require 'glue!#globalScope'
+  Counter         = require 'glue!fixtures/Counter'
+  Args            = require 'glue!fixtures/Args'
+  CounterProvider = require 'glue!fixtures/CounterProvider'
+  Bar             = require 'glue!fixtures/Bar'
+  Foo             = require 'glue!fixtures/Foo'
+  DepFooProvider  = require 'glue!fixtures/DependentFooProvider'
 
   # Annotated dependencies
   RedCounter  = require 'glue!fixtures/Counter@red'
@@ -177,6 +181,34 @@ define (require) ->
 
         expect(red.args).to.deep.equal ['a']
         expect(blue.args).to.deep.equal ['b', 'c']
+
+  describe.only 'providers', ->
+    afterEach ->
+      binder.clearBindings()
+
+    it 'should invoke provider each time "new" is invoked', ->
+      provider = new CounterProvider()
+
+      binder.bind('fixtures/Counter').toProvider provider
+
+      new Counter()
+      new Counter()
+      expect(provider.invoked).to.equal 2
+
+    it 'should create provider in runtime', ->
+      binder.bind('fixtures/Counter').toProvider CounterProvider
+
+      expect(-> new Counter()).to.not.throw
+
+    it 'should allow glue dependencies', ->
+      binder.bind('fixtures/Bar').inSingleton()
+      binder.bind('fixtures/Foo').toProvider DepFooProvider
+
+      fooOne = new Foo()
+      fooTwo = new Foo()
+
+      expect(fooOne).to.not.equal fooTwo
+      expect(fooOne.bar).to.equal fooTwo.bar
 
   describe 'default', ->
     afterEach ->
