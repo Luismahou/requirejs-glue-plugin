@@ -115,6 +115,18 @@ module.exports = (grunt) ->
         options:
           bail: true
 
+    bump:
+      options:
+        files: ['package.json', 'bower.json']
+        commit: true
+        commitMessage: 'Release v%VERSION%'
+        commitFiles: ['package.json', 'bower.json']
+        createTag: true
+        tagName: 'v%VERSION%'
+        push: true
+        pushTo: 'origin'
+        gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
+
   # Aliasing 'mocha' task
   grunt.registerTask 'test', 'mocha'
 
@@ -130,3 +142,4 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib'
   grunt.loadNpmTasks 'grunt-coffeelint'
   grunt.loadNpmTasks 'grunt-mocha'
+  grunt.loadNpmTasks 'grunt-bump'
