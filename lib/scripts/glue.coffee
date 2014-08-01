@@ -37,6 +37,19 @@ define  ->
     else
       new Clazz()
 
+  providerProxy = (provider) ->
+    if provider.get and typeof provider.get is 'function'
+      ->
+        provider.get()
+    else if typeof provider is 'function'
+      p = null
+      ->
+        p = new provider() unless p
+        p.get()
+    else
+      throw new Error 'Provider must be either a class or an instance
+                       and provider "get" method'
+
   # Configures bindings for your modules
   class Binder
     clearBindings: ->
@@ -72,6 +85,16 @@ define  ->
 
           # Otherwise coffeescript would return the private config
           true
+        ,
+        # bind the module name to the given provider
+        toProvider: (provider) ->
+          if not provider
+            throw new Error "provider for #{name} cannot be null"
+          checkIfConfigured(name)
+          config[name] =
+            type         : 'p'
+            provider     : provider
+            providerProxy: providerProxy(provider)
         ,
         # binds the module name as a singleton
         inSingleton: ->
@@ -170,6 +193,8 @@ define  ->
               c.instance
             else if c.type is 'g' # Is in global context
               globalScope.get name, Module
+            else if c.type is 'p' # Provider
+              c.providerProxy()
             else if annotation?
               # Checking if we have configuration for this annotation
               if annotationsConfig[annotation]?[name]?
