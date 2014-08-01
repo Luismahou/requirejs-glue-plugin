@@ -1,6 +1,6 @@
 {
   "name": "requirejs-glue-plugin",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "main": "dist/glue.js",
   "dependencies": {
     "requirejs": "~2.1"
